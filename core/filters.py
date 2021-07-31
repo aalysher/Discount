@@ -1,14 +1,12 @@
-# from django_filters import rest_framework as filters
-# from .models import Company
-#
-#
-# class CharFilterInFilter(filters.BaseInFilter, filters.CharFilter):
-#     pass
-#
-#
-# class CompanyFilter(filters.FilterSet):
-#     name = CharFilterInFilter(field_name='Location__city')
-#
-#     class Meta:
-#         model = Company
-#         fields = ("city",)
+from core.models import Company
+
+
+def get_filter_company(query_param):
+    category_name_query = query_param.get('category')
+    company_queryset = Company.objects.all()
+    if category_name_query:
+        company_queryset = Company.objects.filter(category__name=category_name_query).order_by()
+    return company_queryset
+
+
+

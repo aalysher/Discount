@@ -1,14 +1,15 @@
 from django.contrib import admin
 
-from .models import Company, Discount, Location, View, SocialMedia, Instruction, Review, City, Category
+from .models import Company, Discount, Location, View, SocialMedia, Instruction, \
+    Review, City, Category, Operation, Client
 
 
 class CompanySettings(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('id', 'name', 'category')
 
 
 class DiscountSettings(admin.ModelAdmin):
-    list_display = ('company', 'order_num', 'percent', 'active', 'category', 'pin')
+    list_display = ('company', 'order_num', 'percent', 'active', 'pin')
 
 
 class LocationSettings(admin.ModelAdmin):
@@ -27,6 +28,14 @@ class CategorySettings(admin.ModelAdmin):
     list_display = ('id', 'name')
 
 
+class OperationSettings(admin.ModelAdmin):
+    list_display = ('id', 'client', 'discount')
+
+
+class ClientSettings(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name', 'city')
+
+
 admin.site.register(Company, CompanySettings)
 admin.site.register(Discount, DiscountSettings)
 admin.site.register(Location, LocationSettings)
@@ -36,3 +45,5 @@ admin.site.register(Instruction, InstructionSettings)
 admin.site.register(Review, ReviewSettings)
 admin.site.register(City)
 admin.site.register(Category, CategorySettings)
+admin.site.register(Operation, OperationSettings)
+admin.site.register(Client, ClientSettings)

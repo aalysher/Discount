@@ -9,6 +9,8 @@ class Company(models.Model):
                             max_length=255)
     description = models.TextField("Описание")
     photo = models.URLField(blank=True, null=True)
+    category = models.ForeignKey("Category",
+                                 on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -34,8 +36,6 @@ class Discount(models.Model):
                                     on_delete=models.CASCADE)
     company = models.ForeignKey(Company,
                                 on_delete=models.CASCADE)
-    category = models.ForeignKey("Category",
-                                 on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.company)
@@ -153,3 +153,33 @@ class Category(models.Model):
     class Meta:
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
+
+
+class Operation(models.Model):
+    """Создание операции при выдаче скидочного купона"""
+    client = models.ForeignKey("Client",
+                               on_delete=models.CASCADE)
+    discount = models.ForeignKey(Discount,
+                                 on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.client)
+
+    class Meta:
+        verbose_name = "Операция"
+        verbose_name_plural = "Операции"
+
+
+class Client(models.Model):
+    """Клиент для получения скидочного купона"""
+    first_name = models.CharField("Имя клиента",
+                                  max_length=255)
+    last_name = models.CharField("Фамилия клиента",
+                                 max_length=255)
+    city = models.ForeignKey(City,
+                             on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.last_name} {self.first_name}"
+
+

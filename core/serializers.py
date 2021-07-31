@@ -13,7 +13,7 @@ class CompanySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Company
-        fields = "__all__"
+        exclude = ('category',)
 
 
 class SocialMediaSerializer(serializers.ModelSerializer):
@@ -36,7 +36,7 @@ class DiscountDetailSerializer(CompanySerializer):
 
     class Meta:
         model = Discount
-        exclude = ("pin", "order_num", "company", "category")
+        exclude = ("pin", "order_num", "company")
 
 
 class ReviewSerializer(serializers.ModelSerializer):

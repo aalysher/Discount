@@ -8,13 +8,11 @@ class CompanyDto:
         self.photo = company.photo
         self.view = View.objects.get(id=company).counter
         self.percent = Discount.objects.filter(company=company)[0].percent
-        print(self.percent)
         self.city = Location.objects.filter(company=company)[0].city
 
 
 class CompanyListDto:
-    def __init__(self):
-        company_queryset = Company.objects.all()
+    def __init__(self, company_queryset):
         self.company_list_dto = [CompanyDto(company) for company in company_queryset]
 
 
