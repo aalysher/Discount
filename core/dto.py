@@ -3,6 +3,7 @@ from .models import Company, Discount, View, Location, SocialMedia
 
 class CompanyDto:
     def __init__(self, company):
+        self.id = company.id
         self.name = company.name
         self.description = company.description
         self.photo = company.photo

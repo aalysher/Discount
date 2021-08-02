@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .dto import CompanyListDto, DiscountDto
-from .filters import get_filter_company
+from .filters import get_filter_company_and_city
 from .models import Discount, Review, Category
 from .serializers import CompanySerializer, DiscountDetailSerializer, CouponSerializer, ReviewSerializer, \
     CategorySerializer
@@ -17,7 +17,7 @@ class CompanyList(generics.ListAPIView):
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-        filtered_company = get_filter_company(self.request.query_params)
+        filtered_company = get_filter_company_and_city(self.request.query_params)
         queryset = CompanyListDto(filtered_company).company_list_dto
         return queryset
 

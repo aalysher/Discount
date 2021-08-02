@@ -35,7 +35,8 @@ class Discount(models.Model):
     instruction = models.ForeignKey("Instruction",
                                     on_delete=models.CASCADE)
     company = models.ForeignKey(Company,
-                                on_delete=models.CASCADE)
+                                on_delete=models.CASCADE,
+                                related_name="company")
 
     def __str__(self):
         return str(self.company)
@@ -43,6 +44,7 @@ class Discount(models.Model):
     class Meta:
         verbose_name = "Скидка"
         verbose_name_plural = "Скидки"
+        ordering = ("order_num",)
 
 
 class Instruction(models.Model):
@@ -98,7 +100,8 @@ class Location(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
     company = models.ForeignKey(Company,
-                                on_delete=models.CASCADE)
+                                on_delete=models.CASCADE,
+                                related_name="location")
 
     def __str__(self):
         return self.address

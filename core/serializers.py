@@ -4,6 +4,7 @@ from .models import Company, Discount, Location, View, SocialMedia, City, Instru
 
 
 class CompanySerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
     name = serializers.CharField()
     description = serializers.CharField()
     photo = serializers.URLField()
