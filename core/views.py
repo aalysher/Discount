@@ -1,15 +1,14 @@
 from rest_framework import generics
-from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .dto import CompanyListDto, DiscountDto
 from .filters import get_filter_company_and_city
-from .models import Discount, Review, Category, Operation, Client
+from .models import Review, Category
 from .serializers import CompanySerializer, DiscountDetailSerializer, CouponSerializer, ReviewSerializer, \
     CategorySerializer
-from .services.view_service import counts_views, get_object
+from .services.view_service import counts_views, get_object, add_operation, get_discount_object
 
 
 class CompanyList(generics.ListAPIView):
@@ -47,29 +46,17 @@ class CategoryList(generics.ListAPIView):
 
 
 class CreateCouponOperation(APIView):
-    """Создание купона и измение его статуса """
+    """Получение купона и создание операции"""
 
     def get(self, request, pk_discount, pk_client):
-        queryset = Discount.objects.get(pk=pk_discount)
+        queryset = get_discount_object(pk_discount)
         serializer = CouponSerializer(queryset)
-
-        operation = Operation.objects.filter(discount=pk_discount, client=pk_client)
-
-        if operation:
-            raise ValidationError({'error': 'Купон уже использован'})
-
-        discount_obj = Discount.objects.get(id=pk_discount)
-        client_obj = Client. objects.get(id=pk_client)
-
-        operation = Operation.objects.create(client=client_obj,
-                                             discount=discount_obj)
-
-        data = serializer.data
-
-        data['Срок окончания купона'] = operation.start_date + discount_obj.deadline
-        return Response(data)
-
-    def post(self, request, pk_discount, pk_client):
-        operation = Operation.objects.get(client_id=pk_client, discount_id=pk_discount)
-        discount_deadline = operation.start_date + operation.discount.deadline
-        return Response()
+        operation = add_operation(pk_discount, pk_client)
+        # data = serializer.data
+        # data['Срок окончания купона'] = operation.start_date + operation.discount_obj.deadline
+        return Response(serializer.data)
+    #
+    # def post(self, request, pk_discount, pk_client):
+    #     operation = Operation.objects.get(client_id=pk_client, discount_id=pk_discount)
+    #     discount_deadline = operation.start_date + operation.discount.deadline
+    #     return Response()

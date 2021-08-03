@@ -41,6 +41,7 @@ class DiscountDetailSerializer(CompanySerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    # client = serializers.SlugRelatedField(slug_field='id', read_only=True)
     class Meta:
         model = Review
         fields = "__all__"
@@ -58,10 +59,4 @@ class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Discount
         fields = ('percent', 'condition', 'company')
-
-
-class OperationSerializer(CouponSerializer):
-    class Meta:
-        model = Operation
-        fields = "__all__"
 

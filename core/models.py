@@ -12,12 +12,12 @@ class Company(models.Model):
     category = models.ForeignKey("Category",
                                  on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = "Компания"
         verbose_name_plural = "Компании"
+
+    def __str__(self):
+        return self.name
 
 
 class Discount(models.Model):
@@ -39,13 +39,13 @@ class Discount(models.Model):
                                 on_delete=models.CASCADE,
                                 related_name="company")
 
-    def __str__(self):
-        return str(self.company)
-
     class Meta:
         verbose_name = "Скидка"
         verbose_name_plural = "Скидки"
         ordering = ("order_num",)
+
+    def __str__(self):
+        return str(self.company)
 
 
 class Instruction(models.Model):
@@ -54,12 +54,12 @@ class Instruction(models.Model):
                              max_length=255)
     body = models.TextField("Текст")
 
-    def __str__(self):
-        return self.title
-
     class Meta:
         verbose_name = "Инструкция"
         verbose_name_plural = "Инструкции"
+
+    def __str__(self):
+        return self.title
 
 
 class Review(models.Model):
@@ -71,16 +71,18 @@ class Review(models.Model):
     published_date = models.DateTimeField("Дата публикации отзыва",
                                           auto_now_add=True)
     discount = models.ForeignKey(Discount,
-                                 on_delete=models.CASCADE)
+                                 on_delete=models.CASCADE,
+                                 related_name='discount')
     client = models.ForeignKey("Client",
-                               on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.client_name
+                               on_delete=models.CASCADE,
+                               related_name="client")
 
     class Meta:
         verbose_name = "Отзыв"
         verbose_name_plural = "Отзывы"
+
+    def __str__(self):
+        return self.client_name
 
 
 class City(models.Model):
@@ -89,12 +91,12 @@ class City(models.Model):
                             max_length=255)
     order_num = models.IntegerField("Фильтрация по приоритету")
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = "Город"
         verbose_name_plural = "Города"
+
+    def __str__(self):
+        return self.name
 
 
 class Location(models.Model):
@@ -109,12 +111,12 @@ class Location(models.Model):
                                 on_delete=models.CASCADE,
                                 related_name="location")
 
-    def __str__(self):
-        return self.address
-
     class Meta:
         verbose_name = "Локация"
         verbose_name_plural = "Локации"
+
+    def __str__(self):
+        return self.address
 
 
 class View(models.Model):
@@ -126,12 +128,12 @@ class View(models.Model):
     counter = models.IntegerField("Количество просмотров",
                                   default=0)
 
-    def __str__(self):
-        return str(self.counter)
-
     class Meta:
         verbose_name = "Просмотр"
         verbose_name_plural = "Просмотры"
+
+    def __str__(self):
+        return str(self.counter)
 
 
 class SocialMedia(models.Model):
@@ -143,12 +145,12 @@ class SocialMedia(models.Model):
     company = models.ForeignKey(Company,
                                 on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.type
-
     class Meta:
         verbose_name = "Социальная сеть"
         verbose_name_plural = "Социальные сети"
+
+    def __str__(self):
+        return self.type
 
 
 class Category(models.Model):
@@ -156,12 +158,12 @@ class Category(models.Model):
     name = models.CharField("Название категории",
                             max_length=255)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
+
+    def __str__(self):
+        return self.name
 
 
 operation_choices = [('1', 'Активирован'),
@@ -180,12 +182,12 @@ class Operation(models.Model):
                               choices=operation_choices,
                               default='2')
 
-    def __str__(self):
-        return str(self.client)
-
     class Meta:
         verbose_name = "Операция"
         verbose_name_plural = "Операции"
+
+    def __str__(self):
+        return str(self.client)
 
 
 class Client(models.Model):
@@ -196,6 +198,10 @@ class Client(models.Model):
                                  max_length=255)
     city = models.ForeignKey(City,
                              on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "Клиент"
+        verbose_name_plural = "Клиенты"
 
     def __str__(self):
         return f"{self.last_name} {self.first_name}"
