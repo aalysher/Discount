@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Company, Discount, Location, View, SocialMedia, City, Instruction, Review, Category
+from .models import Company, Discount, Location, View, SocialMedia, City, Instruction, Review, Category, Operation
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -58,3 +58,10 @@ class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Discount
         fields = ('percent', 'condition', 'company')
+
+
+class OperationSerializer(CouponSerializer):
+    class Meta:
+        model = Operation
+        fields = "__all__"
+

@@ -9,11 +9,11 @@ class CompanySettings(admin.ModelAdmin):
 
 
 class DiscountSettings(admin.ModelAdmin):
-    list_display = ('company', 'order_num', 'percent', 'active', 'pin')
+    list_display = ('id', 'company', 'order_num', 'percent', 'active', 'pin')
 
 
 class LocationSettings(admin.ModelAdmin):
-    list_display = ('city', 'address', 'company')
+    list_display = ('id', 'city', 'address', 'company')
 
 
 class InstructionSettings(admin.ModelAdmin):
@@ -21,7 +21,7 @@ class InstructionSettings(admin.ModelAdmin):
 
 
 class ReviewSettings(admin.ModelAdmin):
-    list_display = ('id', 'name', 'published_date')
+    list_display = ('id', 'client_name', 'published_date')
 
 
 class CategorySettings(admin.ModelAdmin):
@@ -33,7 +33,7 @@ class OperationSettings(admin.ModelAdmin):
 
 
 class ClientSettings(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'city')
+    list_display = ('id', 'first_name', 'last_name', 'city')
 
 
 admin.site.register(Company, CompanySettings)

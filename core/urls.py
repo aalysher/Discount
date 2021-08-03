@@ -7,7 +7,7 @@ urlpatterns = [
     # Список всех компаниий предоставляющие скидки
     path('list/<int:pk>/', views.DiscountDetail.as_view()),
     # Опредленная скидка про primary key
-    path('coupon/', views.CouponCreateUpdateView.as_view()),
+    path('coupon/<int:pk_discount>/<int:pk_client>/', views.CreateCouponOperation.as_view()),
     # Выдача купона
     path('review/', views.ReviewCreateView.as_view()),
     # Оставить отзыв

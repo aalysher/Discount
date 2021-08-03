@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db import models
 
@@ -32,6 +32,7 @@ class Discount(models.Model):
                                  max_length=255)
     active = models.BooleanField("Статус",
                                  default=True)
+    deadline = models.DurationField("Срок действия купона", default=timedelta())
     instruction = models.ForeignKey("Instruction",
                                     on_delete=models.CASCADE)
     company = models.ForeignKey(Company,
@@ -63,14 +64,19 @@ class Instruction(models.Model):
 
 class Review(models.Model):
     """Отзыв"""
-    name = models.CharField("Имя пользователя",
-                            max_length=255)
+    client_name = models.CharField("Имя пользователя",
+                                   max_length=255, blank=True, null=True)
+
     text = models.TextField("Текст отзыва")
     published_date = models.DateTimeField("Дата публикации отзыва",
                                           auto_now_add=True)
+    discount = models.ForeignKey(Discount,
+                                 on_delete=models.CASCADE)
+    client = models.ForeignKey("Client",
+                               on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return self.client_name
 
     class Meta:
         verbose_name = "Отзыв"
@@ -158,12 +164,21 @@ class Category(models.Model):
         verbose_name_plural = "Категории"
 
 
+operation_choices = [('1', 'Активирован'),
+                     ('2', 'Неактивирован'),
+                     ('3', 'Просрочен')]
+
+
 class Operation(models.Model):
     """Создание операции при выдаче скидочного купона"""
     client = models.ForeignKey("Client",
                                on_delete=models.CASCADE)
     discount = models.ForeignKey(Discount,
                                  on_delete=models.CASCADE)
+    start_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField("Статус операции", max_length=255,
+                              choices=operation_choices,
+                              default='2')
 
     def __str__(self):
         return str(self.client)
@@ -184,5 +199,3 @@ class Client(models.Model):
 
     def __str__(self):
         return f"{self.last_name} {self.first_name}"
-
-
