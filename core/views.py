@@ -66,5 +66,5 @@ class ActivateCouponView(APIView):
             operation = is_exist_client_or_discount(discount_id, client_id)
             operation.status = '1'
             operation.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response('Купон успешно активирован')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

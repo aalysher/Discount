@@ -1,5 +1,9 @@
 from datetime import datetime
 
+import pytz
+from django.utils import timezone
+from pytz import utc
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -58,7 +62,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GetCouponSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Operation
         fields = ('discount', 'client')
@@ -82,8 +85,8 @@ class GetCouponSerializer(serializers.ModelSerializer):
             return data
 
     def to_representation(self, instance):
-        # images_serializer = ImageSerializer(instance.images, many=True)
-        return {'percent': instance.deadline}
+        return {'percent': instance.discount.percent, 'condition': instance.discount.condition,
+                'company': instance.discount.company.name, 'купон действует до': instance.deadline.strftime('%d.%m.%Y %H:%M')}
 
 
 class ActivateCouponSerializer(serializers.ModelSerializer):
@@ -98,10 +101,16 @@ class ActivateCouponSerializer(serializers.ModelSerializer):
         discount = data['discount']
         client = data['client']
         status = Operation.objects.get(discount_id=discount.id, client_id=client.id).status
-        if pin != int(discount.pin):
-            raise ValidationError('Неверный пин')
-        elif status == '3':
+
+        deadline = Operation.objects.get(discount_id=discount.id, client_id=client.id).deadline
+        local_tz = pytz.timezone('Asia/Kolkata')
+        current_datetime = datetime.now().replace(tzinfo=pytz.utc).astimezone(local_tz)
+        expired_on = deadline.replace(tzinfo=pytz.utc).astimezone(local_tz)
+        if current_datetime >= expired_on:
+            Operation.objects.update(status='3')
             raise ValidationError('Срок действия купона завершен')
+        elif pin != int(discount.pin):
+            raise ValidationError('Неверный пин')
         elif status == '1':
             raise ValidationError('Купон уже активирован')
         return data
