@@ -36,6 +36,10 @@ class ClientSettings(admin.ModelAdmin):
     list_display = ('id', 'first_name', 'last_name', 'city')
 
 
+class CitySettings(admin.ModelAdmin):
+    list_display = ('id', 'name')
+
+
 admin.site.register(Company, CompanySettings)
 admin.site.register(Discount, DiscountSettings)
 admin.site.register(Location, LocationSettings)
@@ -43,7 +47,7 @@ admin.site.register(View)
 admin.site.register(SocialMedia)
 admin.site.register(Instruction, InstructionSettings)
 admin.site.register(Review, ReviewSettings)
-admin.site.register(City)
+admin.site.register(City, CitySettings)
 admin.site.register(Category, CategorySettings)
 admin.site.register(Operation, OperationSettings)
 admin.site.register(Client, ClientSettings)

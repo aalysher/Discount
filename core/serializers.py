@@ -1,6 +1,10 @@
-from rest_framework import serializers
+from datetime import datetime
 
-from .models import Company, Discount, Location, View, SocialMedia, City, Instruction, Review, Category, Operation
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
+from .models import Company, Discount, Location, SocialMedia, Review, Category, Operation
+from .services.view_service import is_exist_operation
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -31,7 +35,7 @@ class LocationDetailSerializer(serializers.ModelSerializer):
 
 class DiscountDetailSerializer(CompanySerializer):
     social_media = SocialMediaSerializer(many=True)
-    location = LocationDetailSerializer()
+    location = LocationDetailSerializer(many=True)
     condition = serializers.CharField()
     instruction = serializers.CharField()
 
@@ -53,10 +57,51 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class CouponSerializer(serializers.ModelSerializer):
-    company = serializers.SlugRelatedField(slug_field='name', read_only=True)
+class GetCouponSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Discount
-        fields = ('percent', 'condition', 'company')
+        model = Operation
+        fields = ('discount', 'client')
 
+    def create(self, validated_data):
+        deadline = datetime.now() + validated_data['discount'].coupon_duration
+        coupon = Operation.objects.create(discount=validated_data['discount'],
+                                          client=validated_data['client'],
+                                          deadline=deadline)
+        return coupon
+
+    def validate(self, data):
+        discount = data['discount']
+        client = data['client']
+        amount_coupons = Operation.objects.filter(discount=data['discount'], status__in=['1', '2'])
+        if is_exist_operation(client, discount):
+            if len(amount_coupons) >= discount.company.limit:
+                discount.company.active = False
+                discount.company.save()
+                raise ValidationError("Превышен лимит")
+            return data
+
+    def to_representation(self, instance):
+        # images_serializer = ImageSerializer(instance.images, many=True)
+        return {'percent': instance.deadline}
+
+
+class ActivateCouponSerializer(serializers.ModelSerializer):
+    pin = serializers.IntegerField()
+
+    class Meta:
+        model = Operation
+        fields = ("pin", "client", "discount")
+
+    def validate(self, data):
+        pin = data['pin']
+        discount = data['discount']
+        client = data['client']
+        status = Operation.objects.get(discount_id=discount.id, client_id=client.id).status
+        if pin != int(discount.pin):
+            raise ValidationError('Неверный пин')
+        elif status == '3':
+            raise ValidationError('Срок действия купона завершен')
+        elif status == '1':
+            raise ValidationError('Купон уже активирован')
+        return data

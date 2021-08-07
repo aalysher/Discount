@@ -1,8 +1,8 @@
-from django.http import Http404
-from requests import Response
+from datetime import datetime, timedelta
+
 from rest_framework.exceptions import ValidationError
 
-from core.models import View, Company, Operation, Discount, Client
+from core.models import View, Company, Operation
 
 
 def counts_views(company):
@@ -17,30 +17,21 @@ def get_object(pk):
     try:
         return Company.objects.get(pk=pk)
     except Company.DoesNotExist:
-        raise ValidationError
+        raise ValidationError('Не верный id компании')
 
 
-def get_discount_object(pk_discount):
+def is_exist_operation(client, discount):
+    """Валидация на существующий купон"""
     try:
-        return Discount.objects.get(pk=pk_discount)
-    except Discount.DoesNotExist:
-        raise ValidationError
+        Operation.objects.get(discount=discount, client=client)
+    except Operation.DoesNotExist:
+        return True
+    raise ValidationError('Вы уже получили купон')
 
 
-def get_client_object(pk_client):
+def is_exist_client_or_discount(discount_id, client_id):
+    """Валидация на id клиента и скидки"""
     try:
-        return Client.objects.get(id=pk_client)
-    except Client.DoesNotExist:
-        raise ValidationError
-
-
-def add_operation(pk_discount, pk_client):
-    """Создает операцию по Id скидки и по id клиента"""
-    operation = Operation.objects.filter(discount=pk_discount, client=pk_client)
-    if operation:
-        # raise ValidationError({'error': 'Купон уже использован'})
-        pass
-    discount_obj = get_discount_object(pk_discount)
-    client_obj = get_client_object(pk_client)
-    operation = Operation.objects.create(client=client_obj,
-                                         discount=discount_obj)
+        return Operation.objects.get(discount=discount_id, client=client_id)
+    except Operation.DoesNotExist:
+        raise ValidationError()

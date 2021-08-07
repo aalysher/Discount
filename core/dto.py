@@ -21,6 +21,6 @@ class DiscountDto(CompanyDto):
     def __init__(self, company):
         super().__init__(company)
         self.social_media = SocialMedia.objects.filter(company=company)
-        self.location = Location.objects.get(company=company)
+        self.location = Location.objects.filter(company=company)
         self.condition = Discount.objects.get(company=company)
         self.instruction = Discount.objects.filter(company=company)[0].instruction.title

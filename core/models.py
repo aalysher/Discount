@@ -1,6 +1,11 @@
 from datetime import datetime, timedelta
+from random import randint
 
 from django.db import models
+
+
+def get_random_pin():
+    return randint(1000, 9999)
 
 
 class Company(models.Model):
@@ -11,6 +16,10 @@ class Company(models.Model):
     photo = models.URLField(blank=True, null=True)
     category = models.ForeignKey("Category",
                                  on_delete=models.CASCADE)
+    active = models.BooleanField("Активен",
+                                 default=True)
+    limit = models.IntegerField("Ограничение на количество скидок",
+                                default=10)
 
     class Meta:
         verbose_name = "Компания"
@@ -23,7 +32,8 @@ class Company(models.Model):
 class Discount(models.Model):
     """Бонускные Скидки"""
     pin = models.CharField("Пин-код",
-                           max_length=20)
+                           max_length=4,
+                           default=get_random_pin)
     order_num = models.IntegerField("Приоритет по фильтрации")
     percent = models.IntegerField("Процент скидки")
     start_date = models.DateTimeField(auto_now_add=True)
@@ -32,7 +42,7 @@ class Discount(models.Model):
                                  max_length=255)
     active = models.BooleanField("Статус",
                                  default=True)
-    deadline = models.DurationField("Срок действия купона", default=timedelta())
+    coupon_duration = models.DurationField("Срок действия купона", default=timedelta())
     instruction = models.ForeignKey("Instruction",
                                     on_delete=models.CASCADE)
     company = models.ForeignKey(Company,
@@ -157,17 +167,19 @@ class Category(models.Model):
     """Категории товаров"""
     name = models.CharField("Название категории",
                             max_length=255)
+    order_num = models.IntegerField("Фильтрация")
 
     class Meta:
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
+        ordering = ['order_num', ]
 
     def __str__(self):
         return self.name
 
 
 operation_choices = [('1', 'Активирован'),
-                     ('2', 'Неактивирован'),
+                     ('2', 'Забронированн'),
                      ('3', 'Просрочен')]
 
 
@@ -181,6 +193,7 @@ class Operation(models.Model):
     status = models.CharField("Статус операции", max_length=255,
                               choices=operation_choices,
                               default='2')
+    deadline = models.DateTimeField("Заверешние купона")
 
     class Meta:
         verbose_name = "Операция"

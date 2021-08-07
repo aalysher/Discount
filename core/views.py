@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -6,9 +6,9 @@ from rest_framework.views import APIView
 from .dto import CompanyListDto, DiscountDto
 from .filters import get_filter_company_and_city
 from .models import Review, Category
-from .serializers import CompanySerializer, DiscountDetailSerializer, CouponSerializer, ReviewSerializer, \
-    CategorySerializer
-from .services.view_service import counts_views, get_object, add_operation, get_discount_object
+from .serializers import CompanySerializer, DiscountDetailSerializer, GetCouponSerializer, ReviewSerializer, \
+    CategorySerializer, ActivateCouponSerializer
+from .services.view_service import counts_views, get_object, is_exist_client_or_discount
 
 
 class CompanyList(generics.ListAPIView):
@@ -48,15 +48,23 @@ class CategoryList(generics.ListAPIView):
 class CreateCouponOperation(APIView):
     """Получение купона и создание операции"""
 
-    def get(self, request, pk_discount, pk_client):
-        queryset = get_discount_object(pk_discount)
-        serializer = CouponSerializer(queryset)
-        operation = add_operation(pk_discount, pk_client)
-        # data = serializer.data
-        # data['Срок окончания купона'] = operation.start_date + operation.discount_obj.deadline
-        return Response(serializer.data)
-    #
-    # def post(self, request, pk_discount, pk_client):
-    #     operation = Operation.objects.get(client_id=pk_client, discount_id=pk_discount)
-    #     discount_deadline = operation.start_date + operation.discount.deadline
-    #     return Response()
+    def post(self, request):
+        serializer = GetCouponSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ActivateCouponView(APIView):
+    """Активация купона"""
+
+    def post(self, request):
+        serializer = ActivateCouponSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            discount_id, client_id = serializer.data['discount'], serializer.data['client']
+            operation = is_exist_client_or_discount(discount_id, client_id)
+            operation.status = '1'
+            operation.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
